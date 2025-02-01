@@ -1,9 +1,18 @@
 import { fetchSingleBlogPost } from '@/lib/api';
 import Image from 'next/image';
 
-export default async function SinglePostPage({ params }: { params: { blogSlug: string } }) {
+type paramsType = Promise<{ blogSlug: string }>;
+export default async function SinglePostPage({ params }: { params: paramsType }) {
   const { blogSlug } = await params;
   const blogPost = await fetchSingleBlogPost(blogSlug);
+
+  if (!blogPost) {
+    return (
+      <div className="container mx-auto px-4 md:px-8 lg:px-16 mt-8">
+        <p>Kein Blogpost verfügbar</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 md:px-8 lg:px-16 mt-4">

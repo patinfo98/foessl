@@ -1,15 +1,24 @@
 import { fetchCategories } from '@/lib/api';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Category } from '@/types/types';
 
 export default async function CategoriesPage() {
   const categories = await fetchCategories();
+
+  if (!categories || categories.length === 0) {
+    return (
+      <div className="container mx-auto px-4 md:px-8 lg:px-16 mt-8">
+        <p>Keine Kategorien verfügbar</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 md:px-8 lg:px-16 mt-8">
       {/* Use grid layout with two columns on large screens */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
-        {categories.map((category) => (
+        {categories.map((category: Category) => (
           <div
             key={category.id}
             className="relative w-full h-96 lg:h-[20rem] rounded-lg overflow-hidden bg-white shadow-lg group"

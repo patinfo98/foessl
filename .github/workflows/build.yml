@@ -34,9 +34,74 @@ jobs:
           echo "HOST=${{ secrets.HOST }}" >> .env
           echo "PORT=${{ secrets.PORT }}" >> .env
           echo "NEXT_PUBLIC_STRAPI_API_URL=${{ secrets.NEXT_PUBLIC_STRAPI_API_URL }}" >> .env    
-
-      - name: Build frontend Docker image
-        run: docker build -f frontend/blog/Dockerfile -t frontend:latest ./frontend/blog
+          echo "STRAPI_ADMIN_BACKEND_URL=${{ secrets.STRAPI_ADMIN_BACKEND_URL }}/admin" >> .env
+          echo "ADMIN_PATH=/admin" >> .env
 
       - name: Build backend Docker image
-        run: docker build -f backend/Dockerfile -t backend:latest ./backend
+        run: |
+          docker build \
+            --build-arg APP_KEYS=${{ secrets.APP_KEYS }} \
+            --build-arg API_TOKEN_SALT=${{ secrets.API_TOKEN_SALT }} \
+            --build-arg ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }} \
+            --build-arg TRANSFER_TOKEN_SALT=${{ secrets.TRANSFER_TOKEN_SALT }} \
+            --build-arg DATABASE_CLIENT=${{ secrets.DATABASE_CLIENT }} \
+            --build-arg DATABASE_FILENAME=${{ secrets.DATABASE_FILENAME }} \
+            --build-arg JWT_SECRET=${{ secrets.JWT_SECRET }} \
+            --build-arg DATABASE_SSL=${{ secrets.DATABASE_SSL }} \
+            --build-arg HOST=${{ secrets.HOST }} \
+            --build-arg NEXT_PUBLIC_STRAPI_API_URL=${{ secrets.NEXT_PUBLIC_STRAPI_API_URL }} \
+            --build-arg PORT=${{ secrets.PORT }} \
+            -f backend/Dockerfile -t backend:latest ./backend
+
+      - name: Build frontend Docker image
+        run: |
+          docker build \
+            --build-arg NEXT_PUBLIC_STRAPI_API_URL=${{ secrets.NEXT_PUBLIC_STRAPI_API_URL }} \
+            -f frontend/blog/Dockerfile -t frontend:latest ./frontend/blog
+
+      - name: Create network
+        run: docker network create my_network
+
+      - name: Run backend Docker container
+        run: |
+          docker run -d \
+            --network my_network \
+            -p 1337:1337 \
+            --name backend \
+            -e APP_KEYS=${{ secrets.APP_KEYS }} \
+            -e API_TOKEN_SALT=${{ secrets.API_TOKEN_SALT }} \
+            -e ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }} \
+            -e TRANSFER_TOKEN_SALT=${{ secrets.TRANSFER_TOKEN_SALT }} \
+            -e DATABASE_CLIENT=${{ secrets.DATABASE_CLIENT }} \
+            -e DATABASE_FILENAME=${{ secrets.DATABASE_FILENAME }} \
+            -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+            -e DATABASE_SSL=${{ secrets.DATABASE_SSL }} \
+            -e HOST=${{ secrets.HOST }} \
+            -e NEXT_PUBLIC_STRAPI_API_URL=${{ secrets.NEXT_PUBLIC_STRAPI_API_URL }} \
+            -e PORT=${{ secrets.PORT }} \
+            backend:latest \
+            npm run develop
+
+      - name: Wait for backend to be ready
+        run: |
+          until docker exec backend curl --silent --fail http://localhost:1337/admin; do
+            echo "Waiting for backend to be ready..."
+            sleep 5
+          done
+
+      - name: Run frontend Docker container
+        run: |
+          docker run -d \
+            --name frontend \
+            --network my_network \
+            -p 3000:3000 \
+            -e NEXT_PUBLIC_STRAPI_API_URL=${{ secrets.NEXT_PUBLIC_STRAPI_API_URL }} \
+            frontend:latest \
+            npm run dev
+
+      - name: Wait for frontend to be ready
+        run: |
+          until docker exec frontend curl --silent --fail http://localhost:3000; do
+            echo "Waiting for frontend to be ready..."
+            sleep 5
+          done
