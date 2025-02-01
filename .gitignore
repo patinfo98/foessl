@@ -6,7 +6,6 @@
 **/*.log
 **/backend/.strapi/
 **/backend/.tmp/
-**/backend/public/uploads/
 
 #Strapi automatic ignore list
 
@@ -70,7 +69,7 @@
 **/.idea
 **/nbproject
 **/public/uploads/*
-**/!public/uploads/.gitkeep
+!**/public/uploads/.gitkeep
 **/.tsbuildinfo
 **/.eslintcache
 
@@ -91,12 +90,12 @@
 ############################
 
 **/.yarn/*
-**/!.yarn/cache
-**/!.yarn/unplugged
-**/!.yarn/patches
-**/!.yarn/releases
-**/!.yarn/sdks
-**/!.yarn/versions
+!**/.yarn/cache
+!**/.yarn/unplugged
+!**/.yarn/patches
+!**/.yarn/releases
+!**/.yarn/sdks
+!**/.yarn/versions
 **/.pnp.*
 **/yarn-error.log
 
@@ -128,10 +127,10 @@
 **/.pnp
 **/.pnp.*
 **/.yarn/*
-**/!.yarn/patches
-**/!.yarn/plugins
-**/!.yarn/releases
-**/!.yarn/versions
+!**/.yarn/patches
+!**/.yarn/plugins
+!**/.yarn/releases
+!**/.yarn/versions
 
 # testing
 **/coverage
