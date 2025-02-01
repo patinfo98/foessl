@@ -10,9 +10,16 @@ Goal of the application is the setup of a simple blog page taking continuous del
     - SQLite Database
 
 ## Local startup
-- Frontend
-    - npm install
-    - npm run dev
-- Backend
+1) Backend
+    - cd foessl/backend
+    - cp .env.example .env
     - npm install
     - npm run develop
+    - insert local testdata via strapi gui to test application 
+        - add one category
+        - add one blog with relation to this category
+        - go to settings roles public and allow find and findOne on category and blog
+2) Frontend
+    - cd foessl/frontend/blog
+    - npm install
+    - npm run dev
