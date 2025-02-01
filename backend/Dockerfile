@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:18-alpine
 
 WORKDIR /backend
 
@@ -32,6 +32,6 @@ ENV HOST=${HOST}
 ENV NEXT_PUBLIC_STRAPI_API_URL=${NEXT_PUBLIC_STRAPI_API_URL}
 ENV PORT=${PORT}
 
-EXPOSE ${PORT}
+EXPOSE 1337
 
 RUN npm run develop
