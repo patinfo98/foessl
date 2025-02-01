@@ -1,0 +1,43 @@
+name: Build docker files
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Build
+        uses: docker/setup-build-action@v1
+
+      - name: Set up environment variables
+      - name: Create .env file
+        run: |
+          echo "APP_KEYS=${{ secrets.APP_KEYS }}" >> .env
+          echo "API_TOKEN_SALT=${{ secrets.API_TOKEN_SALT }}" >> .env
+          echo "ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}" >> .env
+          echo "TRANSFER_TOKEN_SALT=${{ secrets.TRANSFER_TOKEN_SALT }}" >> .env
+          echo "DATABASE_CLIENT=${{ secrets.DATABASE_CLIENT }}" >> .env
+          echo "DATABASE_FILENAME=${{ secrets.DATABASE_FILENAME }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "DATABASE_SSL=${{ secrets.DATABASE_SSL }}" >> .env
+          echo "HOST=${{ secrets.HOST }}" >> .env
+          echo "PORT=${{ secrets.PORT }}" >> .env
+          echo "NEXT_PUBLIC_STRAPI_API_URL=${{ secrets.NEXT_PUBLIC_STRAPI_API_URL }}" >> .env    
+
+      - name: Build frontend Docker image
+        run: docker build -f frontend/blog/Dockerfile -t frontend:latest .
+
+      - name: Build backend Docker image
+        run: docker build -f backend/Dockerfile -t backend:latest .
