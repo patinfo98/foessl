@@ -61,7 +61,7 @@ jobs:
       - name: Start Backend
         working-directory: backend
         run: |
-          npm run develop
+          npm run develop &
 
       - name: Wait for Backend to be Ready
         run: |
