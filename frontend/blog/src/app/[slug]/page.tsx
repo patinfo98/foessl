@@ -22,15 +22,15 @@ export default async function BlogPostsPage({ params }: { params: paramsType }) 
         {blogPosts.map((post: BlogPostSimplified) => (
           <div key={post.id} className="relative rounded-lg overflow-hidden bg-white shadow-lg group">
             <Link href={`/${slug}/${post.slug}`} passHref>
-            <img
-              src={post.titleImage}
-              alt={post.title}
-              className="w-full h-64 object-cover transform group-hover:scale-105 transition duration-300"
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-end p-4 transition-all duration-300 group-hover:bg-opacity-50">
-              <h2 className="text-white text-2xl font-semibold truncate">{post.title}</h2>
-              <p className="text-white text-sm mt-2">{post.description}</p>
-            </div>
+              <img
+                src={post.titleImage}
+                alt={post.title}
+                className="w-full h-64 object-cover transform group-hover:scale-105 transition duration-300"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-end p-4 transition-all duration-300 group-hover:bg-opacity-50">
+                <h2 className="text-white text-2xl font-semibold truncate">{post.title}</h2>
+                <p className="text-white text-sm mt-2">{post.description}</p>
+              </div>
             </Link>
           </div>
         ))}

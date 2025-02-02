@@ -2,6 +2,21 @@ export interface StrapiBaseModel {
     id: number;
     slug: string;
     title: string;
+    documentId: string;
+}
+
+export interface StrapiBlog {
+    title: string,
+    slug: string
+    date?: string;
+}
+
+export interface StrapiResponse {
+    data?: StrapiBaseModel;
+  };
+
+export interface StrapiResponseMultiple {
+    data?: StrapiBaseModel[];
 }
 
 export interface Category extends StrapiBaseModel {

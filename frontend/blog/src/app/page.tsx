@@ -25,7 +25,7 @@ export default async function CategoriesPage() {
             <Link href={`/${category.slug}`} passHref>
               <Image
                 src={category.banner}
-                alt={category.title}
+                alt={category.title!}
                 layout="fill"
                 objectFit="cover"
                 objectPosition="top"
