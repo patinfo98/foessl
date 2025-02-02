@@ -3,12 +3,12 @@ import { BlogPost, StrapiCategory, StrapiMediaType } from "@/types/types";
 const apiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'localhost://1337';
 
 export const fetchBlogPostsByCategory = async (slug : string) => {
-    const response = await fetch(`${apiUrl}/api/blogs?filters[category][slug][$eq]=${slug}&populate[0]=Images&sort=Date:desc`); // Adjust the URL for your Strapi API
+    const response = await fetch(`${apiUrl}/api/blogs?filters[category][slug][$eq]=${slug}&populate[0]=Images&sort=Date:desc`);
     const data = await response.json();
     return data?.data?.map((post: BlogPost) => ({
       id: post.id,
-      title: post.title, // Access 'Title' from the response
-      content: post.content, // Content is an array of blocks
+      title: post.title,
+      content: post.content,
       date: post.date,
       slug: post.slug,
       titleImage: apiUrl + post.images[0].formats.medium.url, 
@@ -30,12 +30,12 @@ export const fetchBlogPostsByCategory = async (slug : string) => {
     const res = await fetch(`${apiUrl}/api/blogs?filters[slug][$eq]=${blogSlug}&populate=Images`);
     const data = await res.json();
   
-    const post = data?.data[0]; // Assuming blog post exists
+    const post = data?.data[0];
   
     return {
       id: post.id,
       title: post.Title,
-      content: post.Content[0].children[0].text,  // Assuming content is stored as text or rich text
+      content: post.Content[0].children[0].text,
       images: post.Images.map((image: StrapiMediaType) => apiUrl + image.formats?.large?.url)
     };
   };
