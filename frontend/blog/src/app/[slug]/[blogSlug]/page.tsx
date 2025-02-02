@@ -25,7 +25,7 @@ export default async function SinglePostPage({ params }: { params: paramsType })
                 src={image}
                 alt={blogPost.title}
                 className="object-cover w-full h-auto"
-                width={1920} 
+                width={1920}
                 height={1080}
                 layout="intrinsic"
                 quality={100}
