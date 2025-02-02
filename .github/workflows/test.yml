@@ -45,6 +45,19 @@ jobs:
         working-directory: backend
         run: npm install
 
+      - name: Set environment variables
+        run: |
+          echo "APP_KEYS=${{ secrets.APP_KEYS }}" >> $GITHUB_ENV
+          echo "API_TOKEN_SALT=${{ secrets.API_TOKEN_SALT }}" >> $GITHUB_ENV
+          echo "ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}" >> $GITHUB_ENV
+          echo "TRANSFER_TOKEN_SALT=${{ secrets.TRANSFER_TOKEN_SALT }}" >> $GITHUB_ENV
+          echo "DATABASE_CLIENT=${{ secrets.DATABASE_CLIENT }}" >> $GITHUB_ENV
+          echo "DATABASE_FILENAME=${{ secrets.DATABASE_FILENAME }}" >> $GITHUB_ENV
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+          echo "DATABASE_SSL=${{ secrets.DATABASE_SSL }}" >> $GITHUB_ENV
+          echo "HOST=${{ secrets.HOST }}" >> $GITHUB_ENV
+          echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
+
       - name: Start Backend
         working-directory: backend
         run: |
