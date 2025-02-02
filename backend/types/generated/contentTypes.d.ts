@@ -382,12 +382,12 @@ export interface ApiBlogBlog extends Struct.CollectionTypeSchema {
   };
   attributes: {
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>;
-    Content: Schema.Attribute.Blocks;
+    content: Schema.Attribute.Blocks;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    Date: Schema.Attribute.Date & Schema.Attribute.Required;
-    Images: Schema.Attribute.Media<
+    date: Schema.Attribute.Date & Schema.Attribute.Required;
+    images: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios',
       true
     > &
@@ -397,7 +397,7 @@ export interface ApiBlogBlog extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
     slug: Schema.Attribute.UID & Schema.Attribute.Required;
-    Title: Schema.Attribute.String & Schema.Attribute.Required;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -407,6 +407,7 @@ export interface ApiBlogBlog extends Struct.CollectionTypeSchema {
 export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
   collectionName: 'categories';
   info: {
+    description: '';
     displayName: 'Category';
     pluralName: 'categories';
     singularName: 'category';
@@ -415,7 +416,7 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    Banner: Schema.Attribute.Media<'images' | 'files' | 'videos'> &
+    banner: Schema.Attribute.Media<'images' | 'files' | 'videos'> &
       Schema.Attribute.Required;
     blogs: Schema.Attribute.Relation<'oneToMany', 'api::blog.blog'>;
     createdAt: Schema.Attribute.DateTime;
@@ -428,8 +429,8 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
-    slug: Schema.Attribute.UID<'Title'> & Schema.Attribute.Required;
-    Title: Schema.Attribute.String &
+    slug: Schema.Attribute.UID & Schema.Attribute.Required;
+    title: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
     updatedAt: Schema.Attribute.DateTime;
