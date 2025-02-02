@@ -1,20 +1,39 @@
-// import type { Core } from '@strapi/strapi';
-
 export default {
-  /**
-   * An asynchronous register function that runs before
-   * your application is initialized.
-   *
-   * This gives you an opportunity to extend code.
-   */
-  register(/* { strapi }: { strapi: Core.Strapi } */) {},
+  async bootstrap({ strapi }) {
+    try {
+      const publicRole = await strapi.db.query('plugin::users-permissions.role').findOne({
+        where: { name: 'Public' },
+        populate: ['permissions'],
+      });
 
-  /**
-   * An asynchronous bootstrap function that runs before
-   * your application gets started.
-   *
-   * This gives you an opportunity to set up your data model,
-   * run jobs, or perform some special logic.
-   */
-  bootstrap(/* { strapi }: { strapi: Core.Strapi } */) {},
+      const requiredPermissions = [
+        'api::blog.blog.find',
+        'api::blog.blog.findOne',
+        'api::blog.blog.create',
+        'api::blog.blog.update',
+        'api::blog.blog.delete',
+        'api::category.category.find',
+        'api::category.category.findOne',
+        'api::category.category.create',
+        'api::category.category.update',
+        'api::category.category.delete',
+      ];
+    
+      for (const action of requiredPermissions) {
+        const existingPermission = publicRole.permissions.find(p => p.action === action);
+        if (!existingPermission) {
+          console.log(`Assigning permission: ${action}`);
+          await strapi.db.query('plugin::users-permissions.permission').create({
+            data: {
+              action,
+              role: publicRole.id
+            },
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error setting permissions:', error);
+    }
+  },
+  register(){}
 };
