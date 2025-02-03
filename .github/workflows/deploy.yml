@@ -31,19 +31,47 @@ jobs:
           systemctl status docker
           EOF
 
-      - name: Copy code to Hetzner server via SCP
+      - name: Check/Create Directories & Copy Files
         run: |
-          scp -r ./backend root@${{ secrets.SERVER_IP }}:/home/deploy/backend
+          ssh root@${{ secrets.SERVER_IP }} << 'EOF'
+          # Check if /home/deploy exists, and create it if not
+          if [ ! -d "/home/deploy" ]; then
+            mkdir -p /home/deploy
+          fi
+
+          # Check if /home/deploy/backend exists, and create it if not
+          if [ ! -d "/home/deploy/backend" ]; then
+            mkdir -p /home/deploy/backend
+          fi
+
+          # Check if /home/deploy/frontend exists, and create it if not
+          if [ ! -d "/home/deploy/frontend" ]; then
+            mkdir -p /home/deploy/frontend
+          fi
+
+          # Check if /home/deploy/frontend/blog exists, and create it if not
+          if [ ! -d "/home/deploy/frontend/blog" ]; then
+            mkdir -p /home/deploy/frontend/blog
+          fi
+
+          # Now copy the files correctly
+          EOF
+
+          # Copy backend and frontend files to server
+          scp -r ./backend root@${{ secrets.SERVER_IP }}:/home/deploy/backend/
           scp -r ./frontend/blog root@${{ secrets.SERVER_IP }}:/home/deploy/frontend/blog
 
       - name: Build & Deploy Docker Images
         run: |
           ssh root@${{ secrets.SERVER_IP }} << 'EOF'
-          cd /home/deploy
+          # Change to the correct directories and build the Docker images
+          cd /home/deploy/backend
+          docker build -t backend:latest .
 
-          docker build -t backend:latest ./backend
-          docker build -t frontend:latest ./frontend/blog
+          cd /home/deploy/frontend/blog
+          docker build -t frontend:latest .
+
           docker network create blog_network
-          docker-compose down 
-          docker-compose up -d 
+          docker-compose down
+          docker-compose up -d
           EOF
