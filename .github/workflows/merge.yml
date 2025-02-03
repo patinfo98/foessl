@@ -27,15 +27,15 @@ jobs:
         run: |
           BRANCH_NAME=$(cat branch_name.txt)
           echo "Branch to merge: $BRANCH_NAME"
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV  # Save it for later steps
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV  
 
       - name: Debug Environment Variable
-        run: echo "Persisted Branch Name: ${{ env.BRANCH_NAME }}"
+        run: echo "Persisted Branch Name: $BRANCH_NAME"
       
       - name: Checkout feature branch
         run: |
-          git fetch origin ${{ env.BRANCH_NAME }}
-          git checkout ${{ env.BRANCH_NAME }}
+          git fetch origin $BRANCH_NAME
+          git checkout $BRANCH_NAME
 
       - name: Checkout the main branch
         run: |
@@ -44,5 +44,5 @@ jobs:
 
       - name: Merge feature branch into main
         run: |
-          git merge ${{ env.BRANCH_NAME }}
+          git merge $BRANCH_NAME
           git push origin main
