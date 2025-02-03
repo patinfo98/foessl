@@ -72,10 +72,13 @@ jobs:
         working-directory: backend
         run: npm test
 
-      - name: Set Repository Variable via GitHub API
-        run: |
-          BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
-          curl -X PATCH \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -d "{\"name\":\"BRANCH_NAME\", \"value\":\"$BRANCH_NAME\"}" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/variables"
+      - name: Set Branch Name
+                run: |
+                  BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
+                  echo "Branch Name: $BRANCH_NAME"
+                  echo "$BRANCH_NAME" > branch_name.txt
+              - name: Upload Branch Name Artifact
+                uses: actions/upload-artifact@v4
+                with:
+                  name: branch-name
+                  path: branch_name.txt
