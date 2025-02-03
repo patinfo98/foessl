@@ -33,7 +33,7 @@ services:
       - "3000:3000"
     networks:
       - blog_network
-    command: npm run dev
+    command: sh -c "until curl --silent --fail http://backend:1337/admin; do echo 'Waiting for backend...'; sleep 5; done; npm run dev"
 
 networks:
   blog_network:

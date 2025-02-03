@@ -4,7 +4,7 @@ const apiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'localhost://1337';
 
 export const fetchBlogPostsByCategory = async (slug: string) => {
   try {
-    const response = await fetch(`${apiUrl}/api/blogs?filters[category][slug][$eq]=${slug}&populate[0]=Images&sort=Date:desc`);
+    const response = await fetch(`${apiUrl}/api/blogs?filters[category][slug][$eq]=${slug}&populate[0]=images&sort=date:desc`);
     const data = await response.json();
     return data?.data?.map((post: BlogPost) => ({
       id: post.id,
@@ -23,7 +23,7 @@ export const fetchBlogPostsByCategory = async (slug: string) => {
 
 export const fetchCategories = async () => {
   try {
-    const res = await fetch(`${apiUrl}/api/categories?populate=Banner`);
+    const res = await fetch(`${apiUrl}/api/categories?populate=banner`);
     const data = await res.json();
     return data?.data?.map((category: StrapiCategory) => ({
       id: category.id,
@@ -40,7 +40,7 @@ export const fetchCategories = async () => {
 
 export const fetchSingleBlogPost = async (blogSlug: string) => {
   try {
-    const res = await fetch(`${apiUrl}/api/blogs?filters[slug][$eq]=${blogSlug}&populate=Images`);
+    const res = await fetch(`${apiUrl}/api/blogs?filters[slug][$eq]=${blogSlug}&populate=images`);
     const data = await res.json();
   
     const post = data?.data[0];

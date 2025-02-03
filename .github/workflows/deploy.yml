@@ -100,10 +100,10 @@ jobs:
           ssh root@${{ secrets.SERVER_IP }} << 'EOF'
 
           cd /home/deploy/backend
-          docker build -t backend:latest .
+          docker build --no-cache -t backend:latest .
 
           cd /home/deploy/frontend/blog
-          docker build -t frontend:latest .
+          docker build --no-cache -t frontend:latest .
 
           if ! docker network ls --filter name=blog_network -q; then
             docker network create blog_network
