@@ -45,5 +45,5 @@ jobs:
 
       - name: Merge feature branch into main
         run: |
-          git merge $BRANCH_NAME
+          git merge --no-ff $BRANCH_NAME
           git push origin main
