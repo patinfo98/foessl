@@ -34,8 +34,8 @@ jobs:
       - name: Clean-up old deployment files
         run: |
           ssh root@${{ secrets.SERVER_IP }} << 'EOF'
-          # Delete everything in /home/deploy to ensure a fresh deployment
-          rm -rf /home/deploy/*
+          # Delete everything in /home/deploy except the strapi-data and uploads folders
+          find /home/deploy -mindepth 1 -maxdepth 1 ! -name 'strapi-data' ! -name 'uploads' -exec rm -rf {} \;
           EOF
 
       - name: Check/Create Directories & Copy Files
@@ -61,6 +61,16 @@ jobs:
             mkdir -p /home/deploy/frontend/blog
           fi
 
+          # Check if /home/deploy/strapi-data exists, and create it if not (for SQLite persistence)
+          if [ ! -d "/home/deploy/strapi-data" ]; then
+            mkdir -p /home/deploy/strapi-data
+          fi
+
+          # Check if /home/deploy/uploads exists, and create it if not (for media uploads persistence)
+          if [ ! -d "/home/deploy/uploads" ]; then
+            mkdir -p /home/deploy/uploads
+          fi
+
           # Now copy the files correctly
           EOF
 
@@ -69,20 +79,25 @@ jobs:
           scp -r ./frontend/blog/* root@${{ secrets.SERVER_IP }}:/home/deploy/frontend/blog
           scp ./docker-compose.yml root@${{ secrets.SERVER_IP }}:/home/deploy/
 
+      - name: Create .env file on Hetzner
+        run: |
+          ssh root@${{ secrets.SERVER_IP }} << 'EOF'
+          echo "NEXT_PUBLIC_STRAPI_API_URL=${{ secrets.NEXT_PUBLIC_STRAPI_API_URL }}" > /home/deploy/.env
+          echo "APP_KEYS=${{ secrets.APP_KEYS }}" >> /home/deploy/.env
+          echo "API_TOKEN_SALT=${{ secrets.API_TOKEN_SALT }}" >> /home/deploy/.env
+          echo "ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}" >> /home/deploy/.env
+          echo "TRANSFER_TOKEN_SALT=${{ secrets.TRANSFER_TOKEN_SALT }}" >> /home/deploy/.env
+          echo "DATABASE_CLIENT=${{ secrets.DATABASE_CLIENT }}" >> /home/deploy/.env
+          echo "DATABASE_FILENAME=${{ secrets.DATABASE_FILENAME }}" >> /home/deploy/.env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> /home/deploy/.env
+          echo "DATABASE_SSL=${{ secrets.DATABASE_SSL }}" >> /home/deploy/.env
+          echo "HOST=${{ secrets.HOST }}" >> /home/deploy/.env
+          echo "PORT=${{ secrets.PORT }}" >> /home/deploy/.env
+          EOF
+
       - name: Build & Deploy Docker Images
         run: |
           ssh root@${{ secrets.SERVER_IP }} << 'EOF'
-          export APP_KEYS="${{ secrets.APP_KEYS }}"
-          export API_TOKEN_SALT="${{ secrets.API_TOKEN_SALT }}"
-          export ADMIN_JWT_SECRET="${{ secrets.ADMIN_JWT_SECRET }}"
-          export TRANSFER_TOKEN_SALT="${{ secrets.TRANSFER_TOKEN_SALT }}"
-          export DATABASE_CLIENT="${{ secrets.DATABASE_CLIENT }}"
-          export DATABASE_FILENAME="${{ secrets.DATABASE_FILENAME }}"
-          export JWT_SECRET="${{ secrets.JWT_SECRET }}"
-          export DATABASE_SSL="${{ secrets.DATABASE_SSL }}"
-          export HOST="${{ secrets.HOST }}"
-          export PORT="${{ secrets.PORT }}"
-          export NEXT_PUBLIC_STRAPI_API_URL="${{ secrets.NEXT_PUBLIC_STRAPI_API_URL }}"
 
           cd /home/deploy/backend
           docker build -t backend:latest .

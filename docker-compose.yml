@@ -20,6 +20,9 @@ services:
     networks:
       - blog_network
     command: npm run develop
+    volumes:
+      - ./strapi-data:/backend/.tmp
+      - ./uploads:/backend/public/uploads
 
   frontend:
     build:
