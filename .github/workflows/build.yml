@@ -2,10 +2,10 @@ name: Build docker files
 
 on:
   workflow_dispatch:
-
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Frontend and Backend Tests"]
+    types:
+      - completed
 
 jobs:
   build:
