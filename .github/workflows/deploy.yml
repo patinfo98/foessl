@@ -31,6 +31,13 @@ jobs:
           systemctl status docker
           EOF
 
+      - name: Clean-up old deployment files
+        run: |
+          ssh root@${{ secrets.SERVER_IP }} << 'EOF'
+          # Delete everything in /home/deploy to ensure a fresh deployment
+          rm -rf /home/deploy/*
+          EOF
+
       - name: Check/Create Directories & Copy Files
         run: |
           ssh root@${{ secrets.SERVER_IP }} << 'EOF'
@@ -58,20 +65,35 @@ jobs:
           EOF
 
           # Copy backend and frontend files to server
-          scp -r ./backend root@${{ secrets.SERVER_IP }}:/home/deploy/backend/
-          scp -r ./frontend/blog root@${{ secrets.SERVER_IP }}:/home/deploy/frontend/blog
+          scp -r ./backend/* root@${{ secrets.SERVER_IP }}:/home/deploy/backend/
+          scp -r ./frontend/blog/* root@${{ secrets.SERVER_IP }}:/home/deploy/frontend/blog
+          scp ./docker-compose.yml root@${{ secrets.SERVER_IP }}:/home/deploy/
 
       - name: Build & Deploy Docker Images
         run: |
           ssh root@${{ secrets.SERVER_IP }} << 'EOF'
-          # Change to the correct directories and build the Docker images
+          export APP_KEYS="${{ secrets.APP_KEYS }}"
+          export API_TOKEN_SALT="${{ secrets.API_TOKEN_SALT }}"
+          export ADMIN_JWT_SECRET="${{ secrets.ADMIN_JWT_SECRET }}"
+          export TRANSFER_TOKEN_SALT="${{ secrets.TRANSFER_TOKEN_SALT }}"
+          export DATABASE_CLIENT="${{ secrets.DATABASE_CLIENT }}"
+          export DATABASE_FILENAME="${{ secrets.DATABASE_FILENAME }}"
+          export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+          export DATABASE_SSL="${{ secrets.DATABASE_SSL }}"
+          export HOST="${{ secrets.HOST }}"
+          export PORT="${{ secrets.PORT }}"
+          export NEXT_PUBLIC_STRAPI_API_URL="${{ secrets.NEXT_PUBLIC_STRAPI_API_URL }}"
+
           cd /home/deploy/backend
           docker build -t backend:latest .
 
           cd /home/deploy/frontend/blog
           docker build -t frontend:latest .
 
-          docker network create blog_network
+          if ! docker network ls --filter name=blog_network -q; then
+            docker network create blog_network
+          fi
+
           docker-compose down
           docker-compose up -d
           EOF
