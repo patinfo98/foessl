@@ -19,7 +19,7 @@ services:
       - "1337:1337"
     networks:
       - blog_network
-    command: npm run develop
+    command: sh -c "npm run build && npm run start"
     volumes:
       - ./strapi-data:/backend/.tmp
       - ./uploads:/backend/public/uploads
@@ -33,7 +33,7 @@ services:
       - "3000:3000"
     networks:
       - blog_network
-    command: sh -c "until curl --silent --fail http://backend:1337/admin; do echo 'Waiting for backend...'; sleep 5; done; npm run dev"
+    command: sh -c "until curl --silent --fail http://backend:1337/admin; do echo 'Waiting for backend...'; sleep 5; done; npm run build && npm run start"
 
 networks:
   blog_network:
