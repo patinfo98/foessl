@@ -1,4 +1,4 @@
-name: Deploy to Hetzner with Ansible
+name: Deploy to Hetzner
 
 on:
   workflow_dispatch:
@@ -8,16 +8,10 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-latest 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Set up Ansible
-        uses: dawidd6/action-install-ansible@v2
-        with:
-          version: 'latest'
 
       - name: Set up SSH key
         run: |
@@ -26,19 +20,59 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
-      - name: Run Ansible Playbook without Inventory
+      - name: Install Docker & Docker Compose on Hetzner
         run: |
-          ansible-playbook deploy.yml \
-            --extra-vars "server_ip=${{ secrets.SERVER_IP }}" \
-            --extra-vars "ssh_key=${{ secrets.HETZNER_SSH }}" \
-            --extra-vars "NEXT_PUBLIC_STRAPI_API_URL=${{ secrets.NEXT_PUBLIC_STRAPI_API_URL }}" \
-            --extra-vars "APP_KEYS=${{ secrets.APP_KEYS }}" \
-            --extra-vars "API_TOKEN_SALT=${{ secrets.API_TOKEN_SALT }}" \
-            --extra-vars "ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}" \
-            --extra-vars "TRANSFER_TOKEN_SALT=${{ secrets.TRANSFER_TOKEN_SALT }}" \
-            --extra-vars "DATABASE_CLIENT=${{ secrets.DATABASE_CLIENT }}" \
-            --extra-vars "DATABASE_FILENAME=${{ secrets.DATABASE_FILENAME }}" \
-            --extra-vars "JWT_SECRET=${{ secrets.JWT_SECRET }}" \
-            --extra-vars "DATABASE_SSL=${{ secrets.DATABASE_SSL }}" \
-            --extra-vars "HOST=${{ secrets.HOST }}" \
-            --extra-vars "PORT=${{ secrets.PORT }}"
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} << 'EOF'
+          apt-get update -y
+          apt-get install -y docker.io
+          systemctl enable --now docker
+          curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+          systemctl status docker
+          EOF
+
+      - name: Ensure Directories Exist
+        run: |
+          ssh root@${{ secrets.SERVER_IP }} << 'EOF'
+          mkdir -p /home/deploy/{backend,frontend/blog,strapi-data,uploads}
+          EOF
+
+      - name: Sync Files Efficiently
+        run: |
+          rsync -avz --delete ./backend/ root@${{ secrets.SERVER_IP }}:/home/deploy/backend/
+          rsync -avz --delete ./frontend/blog/ root@${{ secrets.SERVER_IP }}:/home/deploy/frontend/blog/
+          rsync -avz --delete ./docker-compose.yml root@${{ secrets.SERVER_IP }}:/home/deploy/
+
+      - name: Create .env file on Hetzner
+        run: |
+          ssh root@${{ secrets.SERVER_IP }} << 'EOF'
+          echo "NEXT_PUBLIC_STRAPI_API_URL=${{ secrets.NEXT_PUBLIC_STRAPI_API_URL }}" > /home/deploy/.env
+          echo "APP_KEYS=${{ secrets.APP_KEYS }}" >> /home/deploy/.env
+          echo "API_TOKEN_SALT=${{ secrets.API_TOKEN_SALT }}" >> /home/deploy/.env
+          echo "ADMIN_JWT_SECRET=${{ secrets.ADMIN_JWT_SECRET }}" >> /home/deploy/.env
+          echo "TRANSFER_TOKEN_SALT=${{ secrets.TRANSFER_TOKEN_SALT }}" >> /home/deploy/.env
+          echo "DATABASE_CLIENT=${{ secrets.DATABASE_CLIENT }}" >> /home/deploy/.env
+          echo "DATABASE_FILENAME=${{ secrets.DATABASE_FILENAME }}" >> /home/deploy/.env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> /home/deploy/.env
+          echo "DATABASE_SSL=${{ secrets.DATABASE_SSL }}" >> /home/deploy/.env
+          echo "HOST=${{ secrets.HOST }}" >> /home/deploy/.env
+          echo "PORT=${{ secrets.PORT }}" >> /home/deploy/.env
+          EOF
+
+      - name: Build & Deploy Docker Images
+        run: |
+          ssh root@${{ secrets.SERVER_IP }} << 'EOF'
+
+          cd /home/deploy/backend
+          docker build -t backend:latest .
+
+          cd /home/deploy/frontend/blog
+          docker build -t frontend:latest .
+
+          if ! docker network ls --filter name=blog_network -q; then
+            docker network create blog_network
+          fi
+
+          docker-compose down
+          docker-compose up -d
+          EOF

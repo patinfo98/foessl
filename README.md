@@ -30,19 +30,8 @@ In this project two docker containers are built: one for the frontend and one fo
 ## Test Automation
 As in the build automation seperate tests for the frontend and backend are being used. Frontend is tested by mocking API Requests in a simple unit test fashion ([frontend tests](./frontend/blog/src/tests/api.test.ts)). For the backend tests are a little bit more complex and involve the correct setup of the content management system (set permissions on startup) to interact with the database. After the setup POST, PUT, GET, DELETE operations are tested ([backend tests](./backend/test/strapi_database.test.ts)). The [workflow](./.github/workflows/test.yml) that triggers these tests is run on each branch, since its very short and useful for initial feedback on the developers. 
 
-## Automated Deployment
-On pushes on branch main a github [workflow](/.github/workflows/deploy.yml) is used to automatically deploy the application to my hetzner droplet via compose. This works by first checking if the necessary dependencies exist on the droplet, else installing them. Then the necessary files are copied to the droplet as well as a .env file. Docker [compose](docker-compose.yml) then starts the backend, waits for it to be online and starts the frontend.
-
-The database and uploads folder of the strapi backend are mounted to a physical volume on the server so data stays persistent when a new version is deployed. 
-
 ## Automated Code Analysis
 The frontend of the project is a next.js typescript application that uses strict linting and type safety to ensure adherence to clean coding guidelines. Some of the enforced rules are: no any types, no unused parameters in methods - this also leads to some problems with some packages and therefore annotations like @tsignore have to be used on occasion. 
-
-### Deployment and branching strategy
-For this project, since its quite small only one environment is used. To make sure no errors occur in production, feature branches are used to implement new features. On push of a feature branch the test workflow is triggered, this does basic testing outside of docker. If this succeeds, the docker build workflow is triggered and both frontend and backend are started to check if everything works as it should. Only after those two checks an automatic merge to main workflow is triggered that merges the changes into main, this triggers the deployment workflow.
-
-## Infrastructure as code via terraform
-The projects [terraform workflow](/.github/workflows/terraform.yml) uses a [main.tf](/terraform/main.tf) file to connect to my hetzner account and creates a new resource via my api key. It also injects a new ssh key that is stored in github secrets and later on used for the automatic deployment.
 
 ## Security
 All necessary keys are stored in Github Secrets and injected into the github workflows where necessary. Files like .env are not commited but ignored, however there is an example.env file to have some data for local testing.
