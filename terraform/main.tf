@@ -19,7 +19,7 @@ resource "hcloud_ssh_key" "contdel-key" {
 resource "hcloud_server" "contdel-server" {
   name        = "contdel-server"
   image       = "ubuntu-22.04"
-  server_type = "cx11"
+  server_type = "cx22"
   location    = "nbg1"
   ssh_keys    = [hcloud_ssh_key.contdel-key.id]
 }
