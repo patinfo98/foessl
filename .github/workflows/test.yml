@@ -71,3 +71,14 @@ jobs:
       - name: Run Backend Tests
         working-directory: backend
         run: npm test
+
+      - name: Save branch name as artifact
+        run: |
+          echo "BRANCH_NAME=$(echo ${{ github.ref }} | sed 's/refs\/heads\///')" >> $GITHUB_ENV
+          echo "${{ github.ref }}" > branch_name.txt
+
+      - name: Upload branch name as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: branch-name
+          path: branch_name.txt

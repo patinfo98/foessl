@@ -53,12 +53,12 @@ Es wird dringend empfohlen, diese Checkliste in Ihr eigenes Projekt-Repository z
 ### 20% Infrastruktur- und Konfigurationsmanagement
 - [x] Template Konfigurationsdateien versioniert und zentralisiert
 - [x] Konfigurationsdateien ausgenommen
-- [x] Verwendung in einer Build-Pipeline
+- [ ] Verwendung in einer Build-Pipeline
 - [x] Infrastructure as Code (IaC): Nutze Tools wie Terraform oder Ansible, um die Infrastruktur als Code zu verwalten und sicherzustellen, dass Deployments wiederholbar sind.
 
 ### 10% Sicherheit
 - [x] Zugangsdaten sicher hinterlegt
-- [ ] Sicherheitsüberprüfungen: Integriere automatisierte Sicherheitstests (z. B. OWASP ZAP) in die Pipeline, um potenzielle Sicherheitslücken frühzeitig zu erkennen.
+- [x] Sicherheitsüberprüfungen: Integriere automatisierte Sicherheitstests (z. B. OWASP ZAP) in die Pipeline, um potenzielle Sicherheitslücken frühzeitig zu erkennen.
 
 ### Datenbanken
 - [ ] Datenbank-Migrationen automatisiert
