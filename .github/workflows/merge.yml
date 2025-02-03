@@ -16,26 +16,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Merge to main branch
-        run: |
-          git config --global user.email "{secret.GITHUB_EMAIL}"
-          git config --global user.name "{secret.GITHUB_USERNAME}"
-
-      - name: Download branch name artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: branch-name
-
-      - name: Get branch name from artifact
-        run: |
-          BRANCH_NAME=$(cat branch_name.txt)
-          echo "Branch to merge: $BRANCH_NAME"
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-
       - name: Checkout feature branch
         run: |
-          git fetch origin $BRANCH_NAME
-          git checkout $BRANCH_NAME
+          git fetch origin ${{ vars.BRANCH_NAME }}
+          git checkout ${{ vars.BRANCH_NAME }}
 
       - name: Checkout the main branch
         run: |
@@ -44,5 +28,7 @@ jobs:
 
       - name: Merge feature branch into main
         run: |
-          git merge $BRANCH_NAME
+          git merge ${{ vars.BRANCH_NAME }}
           git push origin main
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
