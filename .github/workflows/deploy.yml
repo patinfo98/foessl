@@ -1,0 +1,49 @@
+name: Deploy to Hetzner
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HETZNER_SSH }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Install Docker & Docker Compose on Hetzner
+        run: |
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP }} << 'EOF'
+          apt-get update -y
+          apt-get install -y docker.io
+          systemctl enable --now docker
+          curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+          systemctl status docker
+          EOF
+
+      - name: Copy code to Hetzner server via SCP
+        run: |
+          scp -r ./backend root@${{ secrets.SERVER_IP }}:/home/deploy/backend
+          scp -r ./frontend/blog root@${{ secrets.SERVER_IP }}:/home/deploy/frontend/blog
+
+      - name: Build & Deploy Docker Images
+        run: |
+          ssh root@${{ secrets.SERVER_IP }} << 'EOF'
+          cd /home/deploy
+
+          docker build -t backend:latest ./backend
+          docker build -t frontend:latest ./frontend/blog
+          docker network create blog_network
+          docker-compose down 
+          docker-compose up -d 
+          EOF
