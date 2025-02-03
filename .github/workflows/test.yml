@@ -73,12 +73,12 @@ jobs:
         run: npm test
 
       - name: Set Branch Name
-                run: |
-                  BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
-                  echo "Branch Name: $BRANCH_NAME"
-                  echo "$BRANCH_NAME" > branch_name.txt
-              - name: Upload Branch Name Artifact
-                uses: actions/upload-artifact@v4
-                with:
-                  name: branch-name
-                  path: branch_name.txt
+        run: |
+          BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
+          echo "Branch Name: $BRANCH_NAME"
+          echo "$BRANCH_NAME" > branch_name.txt
+      - name: Upload Branch Name Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: branch-name
+          path: branch_name.txt

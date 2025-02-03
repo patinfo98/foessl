@@ -30,7 +30,8 @@ jobs:
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV  
 
       - name: Debug Environment Variable
-        run: echo "Persisted Branch Name: $BRANCH_NAME"
+        run: |
+          echo "Persisted Branch Name: $BRANCH_NAME"
       
       - name: Checkout feature branch
         run: |
