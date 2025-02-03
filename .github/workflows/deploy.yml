@@ -31,6 +31,10 @@ jobs:
           systemctl status docker
           EOF
 
+      - name: Ensure target directories exist on Hetzner
+        run: |
+          ssh root@${{ secrets.SERVER_IP }} "mkdir -p /home/deploy/backend /home/deploy/frontend/blog"
+
       - name: Copy code to Hetzner server via SCP
         run: |
           scp -r ./backend root@${{ secrets.SERVER_IP }}:/home/deploy/backend
