@@ -16,6 +16,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set Git Identity for GitHub Actions
+        run: |
+          git config --global user.email "patrick.foessl@edu.fh-joanneum.at"
+          git config --global user.name "Patrick Fössl"
+
       - name: Download Branch Name Artifact
         uses: actions/download-artifact@v4
         with:
