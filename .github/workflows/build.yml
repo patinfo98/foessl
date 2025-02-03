@@ -40,12 +40,12 @@ jobs:
             -f frontend/blog/Dockerfile -t frontend:latest ./frontend/blog
 
       - name: Create network
-        run: docker network create my_network
+        run: docker network create blog_network
 
       - name: Run backend Docker container
         run: |
           docker run -d \
-            --network my_network \
+            --network blog_network \
             -p 1337:1337 \
             --name backend \
             -e APP_KEYS=${{ secrets.APP_KEYS }} \
@@ -72,7 +72,7 @@ jobs:
         run: |
           docker run -d \
             --name frontend \
-            --network my_network \
+            --network blog_network \
             -p 3000:3000 \
             -e NEXT_PUBLIC_STRAPI_API_URL=${{ secrets.NEXT_PUBLIC_STRAPI_API_URL }} \
             frontend:latest \

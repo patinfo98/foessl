@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    environment:
+      - APP_KEYS=${APP_KEYS}
+      - API_TOKEN_SALT=${API_TOKEN_SALT}
+      - ADMIN_JWT_SECRET=${ADMIN_JWT_SECRET}
+      - TRANSFER_TOKEN_SALT=${TRANSFER_TOKEN_SALT}
+      - DATABASE_CLIENT=${DATABASE_CLIENT}
+      - DATABASE_FILENAME=${DATABASE_FILENAME}
+      - JWT_SECRET=${JWT_SECRET}
+      - DATABASE_SSL=${DATABASE_SSL}
+      - HOST=${HOST}
+      - PORT=${PORT}
+    ports:
+      - "1337:1337"
+    networks:
+      - blog_network
+    command: npm run develop
+
+  frontend:
+    build:
+      context: ./frontend/blog
+    environment:
+      - NEXT_PUBLIC_STRAPI_API_URL=${NEXT_PUBLIC_STRAPI_API_URL}
+    ports:
+      - "3000:3000"
+    networks:
+      - blog_network
+    command: npm run dev
+
+networks:
+  blog_network:
+    driver: bridge
